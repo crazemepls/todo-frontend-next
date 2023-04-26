@@ -2,17 +2,6 @@ import { format, addDays, isPast, isToday, isValid, isFuture } from "date-fns"
 import React, { useReducer, useState } from 'react'
 import { Form, Field } from 'react-final-form'
 
-const generateValue = (isCheckbox: boolean, isDate: boolean, event: any) => {
-  if (isCheckbox) {
-    return event.target.checked
-  }
-  else if (isDate) {
-    return new Date(event.target.value)
-  }
-  return event.target.value
-}
-
-
 function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
   let currentTodo = {
     title: '',
@@ -35,8 +24,8 @@ function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
     }
   }
 
-  const onSubmit = (values: any) => {
-    handleNewTodo(values)
+  const onSubmit = async (values: any) => {
+    await handleNewTodo(values)
   }
 
   const required = (value: any) => (value ? undefined : 'Required')
@@ -50,7 +39,7 @@ function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
             <Form
               onSubmit={onSubmit}
               initialValues={currentTodo}
-              render={({ handleSubmit, submitting }) => (
+              render={({ handleSubmit, submitting, pristine }) => (
                 <form onSubmit={handleSubmit}>
                   <Field name="title" validate={required}>
                     {({ input, meta, }) => (
@@ -126,7 +115,7 @@ function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
                           disabled={submitting}
                           className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 transition duration-150 ease-in-out hover:bg-indigo-600 bg-indigo-700 rounded text-white px-8 py-2 text-sm"
                         >
-                          Save
+                          {submitting ? 'Updating...' : 'Save'}
                         </button>
                       ) : (
                         <button
@@ -134,7 +123,7 @@ function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
                           disabled={submitting}
                           className="focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 transition duration-150 ease-in-out hover:bg-indigo-600 bg-indigo-700 rounded text-white px-8 py-2 text-sm"
                         >
-                          Create
+                          {submitting ? 'Creating...' : 'Create'}
                         </button>
                       )
                     }
