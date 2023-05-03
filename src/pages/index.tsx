@@ -6,9 +6,9 @@ import TodoCard from '../components/TodoCard'
 import generateRandomAnimal from 'random-animal-name'
 import { useRouter } from 'next/router'
 import { addDays } from 'date-fns'
-import Modal from '@/components/Modal'
 import React, { useState, useEffect } from 'react'
 import Modalv2 from '@/components/Modalv2'
+import Pagination from '@/components/Pagination'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -34,21 +34,23 @@ function Home(props: any) {
   const [filteredTodos, setFilteredTodos] = useState([{}])
   const [selectedTodo, setSelectedTodo] = useState({})
   const [sortDeadlineTightest, setSortDeadlineTightest] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 5
   //destruct
   const { todos } = props;
-  
+
 
   const generateTodos = (todos: any) => {
     let sortedTodos
 
-    if(sortDeadlineTightest){
+    if (sortDeadlineTightest) {
       sortedTodos = todos.sort(
-        (objA:any, objB:any) => Number (new Date(objA?.deadline)) - Number(new Date(objB?.deadline)),
+        (objA: any, objB: any) => Number(new Date(objA?.deadline)) - Number(new Date(objB?.deadline)),
       );
     }
-    else{
+    else {
       sortedTodos = todos.sort(
-        (objA:any, objB:any) => Number (new Date(objB?.deadline)) - Number(new Date(objA?.deadline)),
+        (objA: any, objB: any) => Number(new Date(objB?.deadline)) - Number(new Date(objA?.deadline)),
       );
     }
 
@@ -58,7 +60,7 @@ function Home(props: any) {
     else if (todoFilter.done) {
       return sortedTodos.filter((todo: any) => todo.published === true)
     }
-    else if(!todoFilter.done){
+    else if (!todoFilter.done) {
       return sortedTodos.filter((todo: any) => todo.published === false)
     }
   }
@@ -193,7 +195,7 @@ function Home(props: any) {
     }
   }
 
-  const handleSortDeadline = ()=>{
+  const handleSortDeadline = () => {
     setSortDeadlineTightest(!sortDeadlineTightest)
   }
 
@@ -210,6 +212,15 @@ function Home(props: any) {
   //     setButtonColor(generateRGBColor);
   //   }, 100);
   // }, [])
+
+  const paginate = (items: any, pageNumber: number, pageSize: number) => {
+    const startIndex = (pageNumber - 1) * pageSize;
+    return items.slice(startIndex, startIndex + pageSize);
+  };
+
+  const onPageChange = (page: number) => {
+    setCurrentPage(page)
+  }
 
   useEffect(() => {
     refreshData
@@ -228,7 +239,6 @@ function Home(props: any) {
         <div style={{ display: 'flex', flexDirection: 'row' }}>
           <button
             className='mx-5 px-2 bg-gray-500'
-            // style={{ backgroundColor: buttonColor }} 
             onClick={() => handleNewRandomTodo()}>
             New Random Todo
           </button>
@@ -239,9 +249,8 @@ function Home(props: any) {
           Sort deadline :
           <button
             className='mx-5 px-2 bg-gray-500'
-            // style={{ backgroundColor: buttonColor }} 
             onClick={() => handleSortDeadline()}>
-              {sortDeadlineTightest ? 'Tightest to Loosest' : 'Loosest to Tightest'}
+            {sortDeadlineTightest ? 'Tightest to Loosest' : 'Loosest to Tightest'}
           </button>
 
         </div>
@@ -254,7 +263,7 @@ function Home(props: any) {
 
         <div style={{ paddingTop: '20px' }}>
           {
-            filteredTodos?.map((todo: any) => (
+            paginate(filteredTodos, currentPage, pageSize).map((todo: any) => (
               <TodoCard
                 todo={todo}
                 key={todo.id}
@@ -265,10 +274,8 @@ function Home(props: any) {
               />
             ))
           }
+          <Pagination items={filteredTodos.length} currentPage={currentPage} pageSize={pageSize} onPageChange={onPageChange} />
         </div>
-        {/* TODO: continue validation: description max length, deadline not in the past */}
-        {/* TODO: navigation */}
-        {/* TODO: todo pagination */}
         {openModal && <Modalv2 handleCloseModal={handleCloseModal} handleNewTodo={handleNewTodo} />}
         {openEditModal && <Modalv2 handleCloseModal={handleCloseEditModal} handleNewTodo={handleSeriousUpdateTodo} defaultTodo={selectedTodo} />}
       </main>
