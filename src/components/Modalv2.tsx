@@ -29,6 +29,11 @@ function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
   }
 
   const required = (value: any) => (value ? undefined : 'Required')
+  const maxChar = (max:number) =>(value:any) =>(value.length<=max ? undefined : 'Too much text!')
+
+const composeValidators = (...validators:any) => (value:any) =>
+  validators.reduce((error:any, validator:any) => error || validator(value), undefined)
+
 
   return (
     <>
@@ -39,9 +44,9 @@ function Modalv2({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
             <Form
               onSubmit={onSubmit}
               initialValues={currentTodo}
-              render={({ handleSubmit, submitting, pristine }) => (
+              render={({ handleSubmit, submitting }) => (
                 <form onSubmit={handleSubmit}>
-                  <Field name="title" validate={required}>
+                  <Field name="title" validate={composeValidators(required, maxChar(10))}>
                     {({ input, meta, }) => (
                       <div>
                         <label htmlFor="title" className="text-gray-800 text-sm font-bold leading-tight tracking-normal">Title</label>
