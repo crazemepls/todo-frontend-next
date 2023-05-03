@@ -1,5 +1,4 @@
 import Head from 'next/head'
-import { Inter } from 'next/font/google'
 import axios from 'axios'
 import styles from '@/styles/Home.module.css'
 import TodoCard from '../components/TodoCard'
@@ -9,8 +8,8 @@ import { addDays } from 'date-fns'
 import React, { useState, useEffect } from 'react'
 import Modalv2 from '@/components/Modalv2'
 import Pagination from '@/components/Pagination'
-
-const inter = Inter({ subsets: ['latin'] })
+import useUserLoginInfo from '@/helper/useSession'
+import ViewOnlyTodoCard from '@/components/ViewOnlyTodoCard'
 
 //fetch with "getServerSideProps"
 export async function getServerSideProps() {
@@ -20,13 +19,15 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      todos: res // <-- assign response
+      todos: res, // <-- assign response
     },
   }
 }
 
 function Home(props: any) {
   const router = useRouter()
+  const { user, isLogin } = useUserLoginInfo();
+  console.log(user)
   const [openModal, setOpenModal] = useState(false)
   const [openEditModal, setOpenEditModal] = useState(false)
   const [todoFilter, setTodoFilter] = useState({ done: false, inProgress: true })
@@ -36,9 +37,10 @@ function Home(props: any) {
   const [sortDeadlineTightest, setSortDeadlineTightest] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 5
+
   //destruct
   const { todos } = props;
-
+  console.log(todos)
 
   const generateTodos = (todos: any) => {
     let sortedTodos
@@ -71,7 +73,6 @@ function Home(props: any) {
 
   const refreshData = () => {
     router.replace(router.asPath);
-    // setFilteredTodos(generateTodos(todos))
   }
 
   const handleCloseModal = () => {
@@ -99,7 +100,11 @@ function Home(props: any) {
       {
         title: generateRandomAnimal(),
         description: 'desc ' + generateRandomAnimal(),
-        published: Math.random() < 0.5
+        published: Math.random() < 0.5,
+        author: {
+          name: user?.name,
+          image: user?.image,
+        }
       }, {
       headers: {
         "Content-Type": 'application/json'
@@ -113,7 +118,10 @@ function Home(props: any) {
   async function handleNewTodo(payload: any) {
     await axios.post(
       `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/`,
-      payload,
+      {...payload,author: {
+        name: user?.name,
+        image: user?.image,
+      }},
       {
         headers: {
           "Content-Type": 'application/json'
@@ -143,6 +151,10 @@ function Home(props: any) {
       `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + todo.id,
       {
         published: !todo.published,
+        author: {
+          name: user?.name,
+          image: user?.image,
+        }
       }, {
       headers: {
         "Content-Type": 'application/json',
@@ -161,6 +173,10 @@ function Home(props: any) {
         description: 'New ' + generateRandomAnimal(),
         published: !todo.published,
         deadline: addDays(new Date(), 20),
+        author: {
+          name: user?.name,
+          image: user?.image,
+        }
       }, {
       headers: {
         "Content-Type": 'application/json',
@@ -174,7 +190,10 @@ function Home(props: any) {
   async function handleSeriousUpdateTodo(payload: any) {
     await axios.put(
       `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + payload.id,
-      payload,
+      {...payload,author: {
+        name: user?.name,
+        image: user?.image,
+      }},
       {
         headers: {
           "Content-Type": 'application/json',
@@ -207,12 +226,6 @@ function Home(props: any) {
     return val
   }
 
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     setButtonColor(generateRGBColor);
-  //   }, 100);
-  // }, [])
-
   const paginate = (items: any, pageNumber: number, pageSize: number) => {
     const startIndex = (pageNumber - 1) * pageSize;
     return items.slice(startIndex, startIndex + pageSize);
@@ -236,15 +249,22 @@ function Home(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-          <button
-            className='mx-5 px-2 bg-gray-500'
-            onClick={() => handleNewRandomTodo()}>
-            New Random Todo
-          </button>
-          <button className='mx-5 px-2 bg-gray-500' onClick={() => handleOpenModal()}>New Todo</button>
+        {
+          isLogin && (
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <button
+                className='mx-5 px-2 bg-gray-500'
+                onClick={() => handleNewRandomTodo()}>
+                New Random Todo
+              </button>
+              <button
+                className='mx-5 px-2 bg-gray-500'
+                onClick={() => handleOpenModal()}>
+                New Todo
+              </button>
+            </div>)
+        }
 
-        </div>
         <div style={{ display: 'flex', flexDirection: 'row', marginTop: '5px' }}>
           Sort deadline :
           <button
@@ -264,14 +284,21 @@ function Home(props: any) {
         <div style={{ paddingTop: '20px' }}>
           {
             paginate(filteredTodos, currentPage, pageSize).map((todo: any) => (
-              <TodoCard
-                todo={todo}
-                key={todo.id}
-                handleDeleteTodo={handleDeleteTodo}
-                handleUpdateTodoStatus={handleUpdateTodoStatus}
-                handleUpdateTodo={handleUpdateTodo}
-                handleOpenEditModal={handleOpenEditModal}
-              />
+              isLogin ? (
+                <TodoCard
+                  todo={todo}
+                  key={todo.id}
+                  handleDeleteTodo={handleDeleteTodo}
+                  handleUpdateTodoStatus={handleUpdateTodoStatus}
+                  handleUpdateTodo={handleUpdateTodo}
+                  handleOpenEditModal={handleOpenEditModal}
+                />
+              ) : (
+                <ViewOnlyTodoCard
+                  todo={todo}
+                  key={todo.id}
+                />
+              )
             ))
           }
           <Pagination items={filteredTodos.length} currentPage={currentPage} pageSize={pageSize} onPageChange={onPageChange} />
