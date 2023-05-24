@@ -12,7 +12,7 @@ import useUserLoginInfo from '@/helper/useSession'
 import ViewOnlyTodoCard from '@/components/ViewOnlyTodoCard'
 import autoAnimate from '@formkit/auto-animate'
 import { useAutoAnimate } from '@formkit/auto-animate/react'
-import TodoService from './services/todos'
+import TodoService from '../services/todos'
 
 //fetch with "getServerSideProps"
 export async function getServerSideProps() {

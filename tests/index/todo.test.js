@@ -1,4 +1,4 @@
-import TodoService, { BASE_URL } from '../../src/pages/services/todos';
+import TodoService, { BASE_URL } from '../../src/services/todos';
 import axios from 'axios';
 
 jest.mock('axios')
