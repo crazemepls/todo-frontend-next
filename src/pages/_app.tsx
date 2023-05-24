@@ -2,7 +2,7 @@ import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import NavBar from '@/components/Navbar'
 import { SessionProvider } from 'next-auth/react'
-import withAuth from '@/components/authHoc'
+import RouteGuard from '@/components/RouteGuard'
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -10,10 +10,9 @@ export default function App({ Component, pageProps }: AppProps) {
       <SessionProvider session={pageProps.session}>
         <>
         <NavBar />
+        {/* <RouteGuard> */}
         <Component {...pageProps} />
-        {/* {
-          withAuth(<Component {...pageProps} />)
-        } */}
+        {/* </RouteGuard> */}
         </>
       </SessionProvider>
     </>

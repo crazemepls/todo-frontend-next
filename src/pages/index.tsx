@@ -5,16 +5,19 @@ import TodoCard from '../components/TodoCard'
 import generateRandomAnimal from 'random-animal-name'
 import { useRouter } from 'next/router'
 import { addDays } from 'date-fns'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Modalv2 from '@/components/Modalv2'
 import Pagination from '@/components/Pagination'
 import useUserLoginInfo from '@/helper/useSession'
 import ViewOnlyTodoCard from '@/components/ViewOnlyTodoCard'
+import autoAnimate from '@formkit/auto-animate'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
+import TodoService from '../services/todos'
 
 //fetch with "getServerSideProps"
 export async function getServerSideProps() {
   //http request
-  const req = await axios.get(`https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/`)
+  const req = await TodoService.getAllTodo()
   const res = await req.data
 
   return {
@@ -23,6 +26,7 @@ export async function getServerSideProps() {
     },
   }
 }
+
 
 function Home(props: any) {
   const router = useRouter()
@@ -38,6 +42,19 @@ function Home(props: any) {
   const [currentPage, setCurrentPage] = useState(1)
   const pageSize = 5
 
+  // const [show, setShow] = useState(false)?
+  // const [animationParent]  = useAutoAnimate()
+  const aa = useRef(null)
+
+  // if(!isLogin){
+  //   return {
+  //     redirect : {
+  //       destination : '/',
+  //       permanent: false,
+  //     }
+  //   }
+  // }
+
   //destruct
   const { todos } = props;
   console.log(todos)
@@ -46,12 +63,12 @@ function Home(props: any) {
     let sortedTodos
 
     if (sortDeadlineTightest) {
-      sortedTodos = todos.sort(
+      sortedTodos = todos?.sort(
         (objA: any, objB: any) => Number(new Date(objA?.deadline)) - Number(new Date(objB?.deadline)),
       );
     }
     else {
-      sortedTodos = todos.sort(
+      sortedTodos = todos?.sort(
         (objA: any, objB: any) => Number(new Date(objB?.deadline)) - Number(new Date(objA?.deadline)),
       );
     }
@@ -60,10 +77,10 @@ function Home(props: any) {
       return sortedTodos
     }
     else if (todoFilter.done) {
-      return sortedTodos.filter((todo: any) => todo.published === true)
+      return sortedTodos?.filter((todo: any) => todo.published === true)
     }
     else if (!todoFilter.done) {
-      return sortedTodos.filter((todo: any) => todo.published === false)
+      return sortedTodos?.filter((todo: any) => todo.published === false)
     }
   }
 
@@ -95,113 +112,46 @@ function Home(props: any) {
   }
 
   async function handleNewRandomTodo() {
-    await axios.post(
-      `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/`,
-      {
-        title: generateRandomAnimal(),
-        description: 'desc ' + generateRandomAnimal(),
-        published: Math.random() < 0.5,
-        author: {
-          name: user?.name,
-          image: user?.image,
-        }
-      }, {
-      headers: {
-        "Content-Type": 'application/json'
-      }
-    }
-    ).then(
-      refreshData
-    )
+    await TodoService.createRandomTodo(user)
+      .then(
+        refreshData
+      )
   }
 
   async function handleNewTodo(payload: any) {
-    await axios.post(
-      `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/`,
-      {...payload,author: {
-        name: user?.name,
-        image: user?.image,
-      }},
-      {
-        headers: {
-          "Content-Type": 'application/json'
-        }
-      }
-    ).then(
-      refreshData
-    )
+    await TodoService.createTodo(payload, user)
+      .then(
+        refreshData
+      )
     setOpenModal(false)
   }
 
   async function handleDeleteTodo(id: string) {
-    await axios.delete(
-      `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + id,
-      {
-        headers: {
-          "Content-Type": 'application/json'
-        }
-      }
-    ).then(
-      refreshData
-    )
+    await TodoService.deleteTodo(id)
+      .then(
+        refreshData
+      )
   }
 
   async function handleUpdateTodoStatus(todo: any) {
-    await axios.put(
-      `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + todo.id,
-      {
-        published: !todo.published,
-        author: {
-          name: user?.name,
-          image: user?.image,
-        }
-      }, {
-      headers: {
-        "Content-Type": 'application/json',
-      }
-    }
-    ).then(
-      refreshData
-    )
+    await TodoService.updateTodoStatus(todo, user)
+      .then(
+        refreshData
+      )
   }
 
   async function handleUpdateTodo(todo: any) {
-    await axios.put(
-      `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + todo.id,
-      {
-        title: 'New ' + generateRandomAnimal(),
-        description: 'New ' + generateRandomAnimal(),
-        published: !todo.published,
-        deadline: addDays(new Date(), 20),
-        author: {
-          name: user?.name,
-          image: user?.image,
-        }
-      }, {
-      headers: {
-        "Content-Type": 'application/json',
-      }
-    }
-    ).then(
-      refreshData
-    )
+    await TodoService.updateTodo(todo, user)
+      .then(
+        refreshData
+      )
   }
 
   async function handleSeriousUpdateTodo(payload: any) {
-    await axios.put(
-      `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + payload.id,
-      {...payload,author: {
-        name: user?.name,
-        image: user?.image,
-      }},
-      {
-        headers: {
-          "Content-Type": 'application/json',
-        }
-      }
-    ).then(
-      refreshData
-    )
+    await TodoService.updateTodoSerious(payload, user)
+      .then(
+        refreshData
+      )
     setOpenEditModal(false)
   }
 
@@ -228,7 +178,7 @@ function Home(props: any) {
 
   const paginate = (items: any, pageNumber: number, pageSize: number) => {
     const startIndex = (pageNumber - 1) * pageSize;
-    return items.slice(startIndex, startIndex + pageSize);
+    return items?.slice(startIndex, startIndex + pageSize);
   };
 
   const onPageChange = (page: number) => {
@@ -239,6 +189,10 @@ function Home(props: any) {
     refreshData
     setFilteredTodos(generateTodos(todos))
   }, [todoFilter, todos, sortDeadlineTightest])
+
+  // useEffect(()=>{
+  //   autoAnimate(aa)
+  // })
 
   return (
     <>
@@ -283,9 +237,11 @@ function Home(props: any) {
 
         <div style={{ paddingTop: '20px' }}>
           {
-            paginate(filteredTodos, currentPage, pageSize).map((todo: any) => (
+            paginate(filteredTodos, currentPage, pageSize)?.map((todo: any) => (
               isLogin ? (
+                // <div ref={parent}>
                 <TodoCard
+                  ref={aa}
                   todo={todo}
                   key={todo.id}
                   handleDeleteTodo={handleDeleteTodo}
@@ -293,6 +249,8 @@ function Home(props: any) {
                   handleUpdateTodo={handleUpdateTodo}
                   handleOpenEditModal={handleOpenEditModal}
                 />
+                // </div>
+
               ) : (
                 <ViewOnlyTodoCard
                   todo={todo}
@@ -301,7 +259,7 @@ function Home(props: any) {
               )
             ))
           }
-          <Pagination items={filteredTodos.length} currentPage={currentPage} pageSize={pageSize} onPageChange={onPageChange} />
+          <Pagination items={filteredTodos?.length} currentPage={currentPage} pageSize={pageSize} onPageChange={onPageChange} />
         </div>
         {openModal && <Modalv2 handleCloseModal={handleCloseModal} handleNewTodo={handleNewTodo} />}
         {openEditModal && <Modalv2 handleCloseModal={handleCloseEditModal} handleNewTodo={handleSeriousUpdateTodo} defaultTodo={selectedTodo} />}
