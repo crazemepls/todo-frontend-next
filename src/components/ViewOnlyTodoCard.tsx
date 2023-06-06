@@ -1,13 +1,19 @@
 import { formatDistanceToNow, isPast } from 'date-fns'
+import React, {useState} from 'react'
+import ImageModal from './ImageModal'
 
 function ViewOnlyTodoCard({ todo }: any) {
+  const [openImageModal, setOpenImageModal] = useState(false)
   const deadline = todo?.deadline ? formatDistanceToNow(new Date(todo.deadline), {includeSeconds:true, addSuffix:true}) : "No deadline"
   const isDone = todo?.published
   const isDeadlinePast = isPast(new Date(todo.deadline))
 
+  const handleCloseEditModal = () => {
+    setOpenImageModal(false)
+  }
+
   return (
-    <div style={{ padding: '10px', margin: '5px', background: '#ffffdd', display: 'flex', flexDirection: 'row' }}
-      key={todo.id}
+    <div style={{ padding: '10px', margin: '5px', background: '#ffffdd', display: 'flex', flexDirection: 'row' }} key={todo?.id}
     >
       <div style={{ width: '5%', alignItems: 'center', justifyContent: 'center', display: 'flex', paddingRight: '10px' }}>
         <input
@@ -16,7 +22,12 @@ function ViewOnlyTodoCard({ todo }: any) {
           disabled={true}
         />
       </div>
-
+      {
+        todo?.image &&
+        <div style={{ width: '20%', alignItems: 'center', justifyContent: 'center', display: 'flex', paddingRight: '10px' }}>
+          <img className="w-40 h-20 mx-2 object-contain cursor-pointer" src={todo?.image} alt="image" onClick={() => setOpenImageModal(true)} />
+        </div>
+      }
       <div style={{ width: '70%' }}>
         <p style={{ fontWeight: 'bold', color: 'black', fontSize: "20px", textDecoration: isDone ? 'line-through' : '' }}>{todo?.title}</p>
         <p />
@@ -32,6 +43,7 @@ function ViewOnlyTodoCard({ todo }: any) {
           </>
         }
       </div>
+      {todo?.image && openImageModal && <ImageModal handleCloseModal={handleCloseEditModal} todo={todo} />}
     </div>
   )
 }

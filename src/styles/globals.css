@@ -109,3 +109,20 @@ a {
     color-scheme: dark;
   }
 }
+
+.hiddenTodoCard {
+  visibility: hidden;
+  opacity: 0;
+  -webkit-transition: all 2s ease-out 0s;
+  -moz-transition: all 2s ease-out 0s;
+  -ms-transition: all 2s ease-out 0s;
+  -o-transition: all 2s ease-out 0s;
+  transition: all 2s ease-out 0s;
+}
+
+.visibleTodoCard {
+  visibility: visible;
+  -webkit-opacity: 0.90;
+  -moz-opacity: 0.90;
+  opacity: 0.90;
+}

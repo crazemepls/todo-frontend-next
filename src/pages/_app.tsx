@@ -5,16 +5,13 @@ import { SessionProvider } from 'next-auth/react'
 import RouteGuard from '@/components/RouteGuard'
 
 export default function App({ Component, pageProps }: AppProps) {
+
   return (
-    <>
-      <SessionProvider session={pageProps.session}>
-        <>
+    <SessionProvider session={pageProps.session}>
+      <RouteGuard>
         <NavBar />
-        {/* <RouteGuard> */}
         <Component {...pageProps} />
-        {/* </RouteGuard> */}
-        </>
-      </SessionProvider>
-    </>
+      </RouteGuard>
+    </SessionProvider>
   )
 }

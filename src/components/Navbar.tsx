@@ -2,7 +2,6 @@ import { useRouter } from 'next/router'
 import { signIn, signOut } from 'next-auth/react';
 import useUserLoginInfo from '../helper/useSession'
 
-
 function NavBar({ }: any) {
   const router = useRouter()
   const { user, isLogin } = useUserLoginInfo();
