@@ -1,9 +1,10 @@
 import { formatDistanceToNow, isPast } from 'date-fns'
 import React, { useState } from 'react'
 import ImageModal from './ImageModal'
+import Tooltip from './Tooltip'
 
 
-function TodoCard({ todo, handleDeleteTodo, handleUpdateTodoStatus, handleUpdateTodo, handleOpenEditModal }: any) {
+function TodoCard({ todo, handleDeleteTodo, handleUpdateTodoStatus, handleUpdateTodo, handleOpenEditModal, editable }: any) {
   const [openImageModal, setOpenImageModal] = useState(false)
   const deadline = todo?.deadline ? formatDistanceToNow(new Date(todo.deadline), { includeSeconds: true, addSuffix: true }) : "No deadline"
   const isDone = todo?.published
@@ -40,13 +41,17 @@ function TodoCard({ todo, handleDeleteTodo, handleUpdateTodoStatus, handleUpdate
       className={handleFadeInFadeOut()}
       key={todo.id}
     >
+      <Tooltip tooltipText={'Set to Done'}>
       <div style={{ width: '5%', alignItems: 'center', justifyContent: 'center', display: 'flex', paddingRight: '10px' }}>
+      
         <input
           type={'checkbox'}
           defaultChecked={todo.published}
           onChange={() => handleUpdateTodoStatus(todo)}
         />
+
       </div>
+      </Tooltip>
       {
         todo?.image &&
         <div style={{ width: '20%', alignItems: 'center', justifyContent: 'center', display: 'flex', paddingRight: '10px' }}>
@@ -73,7 +78,7 @@ function TodoCard({ todo, handleDeleteTodo, handleUpdateTodoStatus, handleUpdate
 
       <div style={{ width: '25%', alignItems: 'center', justifyContent: 'center', display: 'flex', paddingRight: '20px', flexDirection: 'column' }}>
         <button style={{ display: 'flex', fontSize: '14px', margin: "0px 5px", color: '#32a840', minWidth: '84px' }} onClick={() => handleUpdateTodo(todo)}>Random Edit</button>
-        <button style={{ display: 'flex', fontSize: '14px', margin: "0px 5px", color: '#32a840' }} onClick={() => handleOpenEditModal(todo.id)}>Edit</button>
+        {editable && <button style={{ display: 'flex', fontSize: '14px', margin: "0px 5px", color: '#32a840' }} onClick={() => handleOpenEditModal(todo.id)}>Edit</button>}
         <button style={{ display: 'flex', fontSize: '14px', margin: "0px 5px", color: '#d12121' }}
           onClick={() => {
             handleDeleteTodo(todo.id)
