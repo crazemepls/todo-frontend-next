@@ -41,7 +41,7 @@ function TodoCard({ todo, handleDeleteTodo, handleUpdateTodoStatus, handleUpdate
       className={handleFadeInFadeOut()}
       key={todo.id}
     >
-      <Tooltip tooltipText={'Set to Done'}>
+      <Tooltip tooltipText={!todo.published ? 'Set to Done' : 'Set to Not Done'}>
       <div style={{ width: '5%', alignItems: 'center', justifyContent: 'center', display: 'flex', paddingRight: '10px' }}>
       
         <input
