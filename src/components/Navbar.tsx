@@ -6,6 +6,11 @@ function NavBar({ }: any) {
   const router = useRouter()
   const { user, isLogin } = useUserLoginInfo();
 
+  const isActive = (path:string) =>{
+    if(router.pathname===path)
+    return 'black'
+  }
+
   return (
     <nav id="header" className="w-full z-30 py-1 bg-white shadow-lg border-b border-blue-400">
       <div className="w-full flex items-center justify-between mt-0 px-6 py-2">
@@ -20,12 +25,12 @@ function NavBar({ }: any) {
         <div className="hidden md:flex md:items-center md:w-auto w-full order-3 md:order-1" id="menu">
           <nav>
             <ul className="md:flex items-center justify-between text-base text-blue-600 pt-4 md:pt-0">
-              <li><button className="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2" onClick={() => router.push('/')}>All Todos</button></li>
+              <li><button style={{color :isActive('/')}} className="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2" onClick={() => router.push('/')}>All Todos</button></li>
               {
                 isLogin &&
                 <>
-                  <li><button className="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2" onClick={() => router.push('/done')}>Done</button></li>
-                  <li><button className="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2" onClick={() => router.push('/todo')}>In Progress</button></li>
+                  <li><button style={{color :isActive('/done')}} className="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2" onClick={() => router.push('/done')}>Done</button></li>
+                  <li><button style={{color :isActive('/todo')}} className="inline-block no-underline hover:text-black font-medium text-lg py-2 px-4 lg:-ml-2" onClick={() => router.push('/todo')}>In Progress</button></li>
                 </>
               }
             </ul>
