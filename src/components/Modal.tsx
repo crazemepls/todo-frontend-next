@@ -43,28 +43,6 @@ function Modal({ handleCloseModal, handleNewTodo, defaultTodo }: any) {
   }
   const [formData, setFormData] = useReducer(formReducer, currentTodo);
 
-  const isFormValid = (formData:any) => {
-    if (!formData.title || !formData.description) { //value exist
-      return false
-    }
-   
-    if (formData.title.length < 20 && formData.description.length < 60) { //value cannot be more than 20 & 60
-      return false
-    }
-    // else if (isValid(formData.deadline)) { //deadline should be exist & cannot be past
-    //  if(isFuture(formData.deadline) || isToday(formData.deadline)){
-    //   return false
-    //  }
-    //  return false
-    // }
-    else{
-      return true
-    }
-    //TODO: sort by deadline EASIER
-    //TODO: form validation : title, description, deadline, 
-  }
-
-
   return (
     <>
       <div className="py-12 bg-gray-700 bg-opacity-80  transition duration-150 ease-in-out z-10 absolute top-0 right-0 bottom-0 left-0" id="modal">

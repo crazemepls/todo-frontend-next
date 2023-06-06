@@ -20,7 +20,7 @@ export async function getServerSideProps() {
 
   return {
     props: {
-      todos: res.filter((ress:any)=>ress.published===false) // <-- assign response
+      todos: res.filter((ress: any) => ress.published === false) // <-- assign response
     },
   }
 }
@@ -31,7 +31,6 @@ function Todo(props: any) {
 
   //destruct
   const { todos } = props;
-  console.log(todos)
 
   const refreshData = () => {
     router.replace(router.asPath);
@@ -91,7 +90,6 @@ function Todo(props: any) {
   }
 
   async function handleUpdateTodoStatus(todo: any) {
-    console.log(todo)
     console.log('update ' + todo.id)
     await axios.put(
       `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + todo.id,
@@ -108,7 +106,6 @@ function Todo(props: any) {
   }
 
   async function handleUpdateTodo(todo: any) {
-    console.log(todo)
     console.log('update ' + todo.id)
     await axios.put(
       `https://3t5qygoujf.execute-api.ap-southeast-2.amazonaws.com/production/` + todo.id,
@@ -136,11 +133,11 @@ function Todo(props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <div style={{display:'flex', flexDirection:'row'}}>
-        <button className='mx-5 px-2 bg-gray-500' onClick={() => handleNewRandomTodo()}>New Random Todo</button>
-        <button className='mx-5 px-2 bg-gray-500' onClick={() => handleOpenModal()}>New Todo</button>
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <button className='mx-5 px-2 bg-gray-500' onClick={() => handleNewRandomTodo()}>New Random Todo</button>
+          <button className='mx-5 px-2 bg-gray-500' onClick={() => handleOpenModal()}>New Todo</button>
         </div>
-        
+
         <div style={{ paddingTop: '20px' }}>
           {
             todos.map((todo: any) => (
